@@ -1,0 +1,18 @@
+packages:
+  "recharts": "Dashboard analytics charts and data visualization"
+  "date-fns": "Human-readable date formatting"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility function to efficiently merge Tailwind CSS classes"
+
+images:
+  - path: "artifacts/erp-app/public/images/logo.png"
+    description: "Minimal modern geometric logo mark for an enterprise ERP system, abstract interconnected blocks in bright cyan and deep indigo, transparent background, 3D subtle gloss"
+    aspect_ratio: "1:1"
+  - path: "artifacts/erp-app/public/images/auth-bg.png"
+    description: "Deep dark navy and teal abstract digital network mesh background with subtle glowing data lines and soft light leaks, premium enterprise software feel, dark mode"
+    aspect_ratio: "16:9"
+
+notes:
+  - All API routes are prefixed with /api
+  - Auth uses cookie-based sessions, handled via standard fetch credentials
+  - Using generated hooks from @workspace/api-client-react
