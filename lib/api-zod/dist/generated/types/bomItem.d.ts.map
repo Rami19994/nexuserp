@@ -1,0 +1,1 @@
+{"version":3,"file":"bomItem.d.ts","sourceRoot":"","sources":["../../../src/generated/types/bomItem.ts"],"names":[],"mappings":"AAAA;;;;;;GAMG;AACH,OAAO,KAAK,EAAE,QAAQ,EAAE,MAAM,YAAY,CAAC;AAE3C,MAAM,WAAW,OAAO;IACtB,EAAE,EAAE,MAAM,CAAC;IACX,SAAS,EAAE,MAAM,CAAC;IAClB,UAAU,EAAE,MAAM,CAAC;IACnB,UAAU,EAAE,MAAM,CAAC;IACnB,QAAQ,CAAC,EAAE,QAAQ,CAAC;CACrB"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"productWithBom.d.ts","sourceRoot":"","sources":["../../../src/generated/types/productWithBom.ts"],"names":[],"mappings":"AAAA;;;;;;GAMG;AACH,OAAO,KAAK,EAAE,OAAO,EAAE,MAAM,WAAW,CAAC;AAEzC,MAAM,WAAW,cAAc;IAC7B,EAAE,EAAE,MAAM,CAAC;IACX,WAAW,EAAE,MAAM,CAAC;IACpB,gBAAgB;IAChB,WAAW,CAAC,EAAE,MAAM,GAAG,IAAI,CAAC;IAC5B,QAAQ,EAAE,OAAO,EAAE,CAAC;CACrB"}

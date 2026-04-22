@@ -1,0 +1,1 @@
+{"version":3,"file":"transferResult.d.ts","sourceRoot":"","sources":["../../../src/generated/types/transferResult.ts"],"names":[],"mappings":"AAAA;;;;;;GAMG;AACH,OAAO,KAAK,EAAE,gBAAgB,EAAE,MAAM,oBAAoB,CAAC;AAE3D,MAAM,WAAW,cAAc;IAC7B,OAAO,EAAE,OAAO,CAAC;IACjB,OAAO,EAAE,MAAM,CAAC;IAChB,WAAW,CAAC,EAAE,gBAAgB,CAAC;IAC/B,SAAS,CAAC,EAAE,gBAAgB,CAAC;CAC9B"}
