@@ -1,0 +1,1083 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Manufacturing Planning + Inventory Management API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication
+  - name: users
+    description: User management
+  - name: products
+    description: Products and BOM
+  - name: materials
+    description: Materials master data
+  - name: locations
+    description: Warehouse locations
+  - name: inventory
+    description: Inventory management
+  - name: transfers
+    description: Stock transfers
+  - name: transactions
+    description: Inventory transactions
+  - name: manufacturing
+    description: Manufacturing plan
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with username and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout current user
+      responses:
+        "200":
+          description: Logged out
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current logged-in user
+      responses:
+        "200":
+          description: Current user info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List all users
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserBody"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserBody"
+      responses:
+        "200":
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    delete:
+      operationId: deleteUser
+      tags: [users]
+      summary: Delete user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /materials:
+    get:
+      operationId: listMaterials
+      tags: [materials]
+      summary: List all materials
+      responses:
+        "200":
+          description: List of materials
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Material"
+    post:
+      operationId: createMaterial
+      tags: [materials]
+      summary: Create a new material
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMaterialBody"
+      responses:
+        "201":
+          description: Material created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Material"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /materials/{id}:
+    patch:
+      operationId: updateMaterial
+      tags: [materials]
+      summary: Update material
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMaterialBody"
+      responses:
+        "200":
+          description: Material updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Material"
+    delete:
+      operationId: deleteMaterial
+      tags: [materials]
+      summary: Delete material
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /locations:
+    get:
+      operationId: listLocations
+      tags: [locations]
+      summary: List all locations
+      responses:
+        "200":
+          description: List of locations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Location"
+    post:
+      operationId: createLocation
+      tags: [locations]
+      summary: Create a new location
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLocationBody"
+      responses:
+        "201":
+          description: Location created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+
+  /locations/{id}:
+    delete:
+      operationId: deleteLocation
+      tags: [locations]
+      summary: Delete location
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List all products
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      operationId: createProduct
+      tags: [products]
+      summary: Create a new product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductBody"
+      responses:
+        "201":
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [products]
+      summary: Get product with BOM
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Product with BOM
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductWithBom"
+    delete:
+      operationId: deleteProduct
+      tags: [products]
+      summary: Delete product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /products/{id}/bom:
+    post:
+      operationId: addBomItem
+      tags: [products]
+      summary: Add BOM item to product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBomItemBody"
+      responses:
+        "201":
+          description: BOM item added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BomItem"
+
+  /products/{id}/bom/{bomId}:
+    delete:
+      operationId: deleteBomItem
+      tags: [products]
+      summary: Delete BOM item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: bomId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /manufacturing/plan:
+    post:
+      operationId: calculateManufacturingPlan
+      tags: [manufacturing]
+      summary: Calculate manufacturing plan (BOM explosion)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ManufacturingPlanRequest"
+      responses:
+        "200":
+          description: Manufacturing plan result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManufacturingPlanResult"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inventory/stock-in:
+    post:
+      operationId: stockIn
+      tags: [inventory]
+      summary: Add stock to a location
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StockInBody"
+      responses:
+        "200":
+          description: Stock added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryBalance"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inventory/balances:
+    get:
+      operationId: listInventoryBalances
+      tags: [inventory]
+      summary: List inventory balances (optionally filtered)
+      parameters:
+        - name: locationId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: materialId
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Inventory balances
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InventoryBalanceDetail"
+
+  /inventory/transfer:
+    post:
+      operationId: transferStock
+      tags: [transfers]
+      summary: Transfer stock between locations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransferBody"
+      responses:
+        "200":
+          description: Transfer completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransferResult"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inventory/adjust:
+    post:
+      operationId: adjustInventory
+      tags: [inventory]
+      summary: Adjust inventory (stock audit/count)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdjustBody"
+      responses:
+        "200":
+          description: Adjustment saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryBalance"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /transactions:
+    get:
+      operationId: listTransactions
+      tags: [transactions]
+      summary: List inventory transactions with filters
+      parameters:
+        - name: txType
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: materialId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: locationId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: fromDate
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: toDate
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: limit
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TransactionDetail"
+
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [inventory]
+      summary: Get dashboard statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    LoginBody:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+
+    AuthUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        fullName:
+          type: string
+        role:
+          type: string
+        isActive:
+          type: boolean
+        permissions:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - username
+        - fullName
+        - role
+        - isActive
+        - permissions
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        fullName:
+          type: string
+        role:
+          type: string
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - username
+        - fullName
+        - role
+        - isActive
+        - createdAt
+
+    CreateUserBody:
+      type: object
+      properties:
+        username:
+          type: string
+        fullName:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+        isActive:
+          type: boolean
+      required:
+        - username
+        - fullName
+        - password
+        - role
+
+    UpdateUserBody:
+      type: object
+      properties:
+        fullName:
+          type: string
+        role:
+          type: string
+        isActive:
+          type: boolean
+        password:
+          type: ["string", "null"]
+
+    Material:
+      type: object
+      properties:
+        id:
+          type: integer
+        materialCode:
+          type: string
+        materialName:
+          type: string
+        unit:
+          type: ["string", "null"]
+      required:
+        - id
+        - materialCode
+        - materialName
+
+    CreateMaterialBody:
+      type: object
+      properties:
+        materialCode:
+          type: string
+        materialName:
+          type: string
+        unit:
+          type: ["string", "null"]
+      required:
+        - materialCode
+        - materialName
+
+    UpdateMaterialBody:
+      type: object
+      properties:
+        materialName:
+          type: string
+        unit:
+          type: ["string", "null"]
+
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+        locationName:
+          type: string
+      required:
+        - id
+        - locationName
+
+    CreateLocationBody:
+      type: object
+      properties:
+        locationName:
+          type: string
+      required:
+        - locationName
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        productCode:
+          type: string
+        productName:
+          type: ["string", "null"]
+      required:
+        - id
+        - productCode
+
+    CreateProductBody:
+      type: object
+      properties:
+        productCode:
+          type: string
+        productName:
+          type: ["string", "null"]
+      required:
+        - productCode
+
+    BomItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        productId:
+          type: integer
+        materialId:
+          type: integer
+        qtyPerUnit:
+          type: number
+        material:
+          $ref: "#/components/schemas/Material"
+      required:
+        - id
+        - productId
+        - materialId
+        - qtyPerUnit
+
+    ProductWithBom:
+      type: object
+      properties:
+        id:
+          type: integer
+        productCode:
+          type: string
+        productName:
+          type: ["string", "null"]
+        bomItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/BomItem"
+      required:
+        - id
+        - productCode
+        - bomItems
+
+    CreateBomItemBody:
+      type: object
+      properties:
+        materialId:
+          type: integer
+        qtyPerUnit:
+          type: number
+      required:
+        - materialId
+        - qtyPerUnit
+
+    ManufacturingPlanRequest:
+      type: object
+      properties:
+        productCode:
+          type: string
+        targetQty:
+          type: number
+        locationId:
+          type: ["integer", "null"]
+      required:
+        - productCode
+        - targetQty
+
+    ManufacturingPlanItem:
+      type: object
+      properties:
+        materialId:
+          type: integer
+        materialCode:
+          type: string
+        materialName:
+          type: string
+        unit:
+          type: ["string", "null"]
+        qtyPerUnit:
+          type: number
+        requiredQty:
+          type: number
+        availableQty:
+          type: number
+        shortageQty:
+          type: number
+      required:
+        - materialId
+        - materialCode
+        - materialName
+        - qtyPerUnit
+        - requiredQty
+        - availableQty
+        - shortageQty
+
+    ManufacturingPlanResult:
+      type: object
+      properties:
+        productCode:
+          type: string
+        productName:
+          type: ["string", "null"]
+        targetQty:
+          type: number
+        totalMaterials:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ManufacturingPlanItem"
+      required:
+        - productCode
+        - targetQty
+        - totalMaterials
+        - items
+
+    StockInBody:
+      type: object
+      properties:
+        materialCode:
+          type: string
+        materialName:
+          type: string
+        quantity:
+          type: number
+        locationId:
+          type: integer
+        unit:
+          type: ["string", "null"]
+        reference:
+          type: ["string", "null"]
+        userNote:
+          type: ["string", "null"]
+      required:
+        - materialCode
+        - materialName
+        - quantity
+        - locationId
+
+    InventoryBalance:
+      type: object
+      properties:
+        id:
+          type: integer
+        materialId:
+          type: integer
+        locationId:
+          type: integer
+        quantity:
+          type: number
+      required:
+        - id
+        - materialId
+        - locationId
+        - quantity
+
+    InventoryBalanceDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        materialId:
+          type: integer
+        locationId:
+          type: integer
+        quantity:
+          type: number
+        material:
+          $ref: "#/components/schemas/Material"
+        location:
+          $ref: "#/components/schemas/Location"
+      required:
+        - id
+        - materialId
+        - locationId
+        - quantity
+        - material
+        - location
+
+    TransferBody:
+      type: object
+      properties:
+        materialId:
+          type: integer
+        fromLocationId:
+          type: integer
+        toLocationId:
+          type: integer
+        quantity:
+          type: number
+        reference:
+          type: ["string", "null"]
+        userNote:
+          type: ["string", "null"]
+      required:
+        - materialId
+        - fromLocationId
+        - toLocationId
+        - quantity
+
+    TransferResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        fromBalance:
+          $ref: "#/components/schemas/InventoryBalance"
+        toBalance:
+          $ref: "#/components/schemas/InventoryBalance"
+      required:
+        - success
+        - message
+
+    AdjustBody:
+      type: object
+      properties:
+        materialId:
+          type: integer
+        locationId:
+          type: integer
+        actualQty:
+          type: number
+        userNote:
+          type: ["string", "null"]
+      required:
+        - materialId
+        - locationId
+        - actualQty
+
+    TransactionDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        txType:
+          type: string
+        materialId:
+          type: integer
+        fromLocationId:
+          type: ["integer", "null"]
+        toLocationId:
+          type: ["integer", "null"]
+        quantity:
+          type: number
+        txDatetime:
+          type: string
+        reference:
+          type: ["string", "null"]
+        userNote:
+          type: ["string", "null"]
+        material:
+          $ref: "#/components/schemas/Material"
+        fromLocation:
+          type: ["object", "null"]
+          properties:
+            id:
+              type: integer
+            locationName:
+              type: string
+        toLocation:
+          type: ["object", "null"]
+          properties:
+            id:
+              type: integer
+            locationName:
+              type: string
+      required:
+        - id
+        - txType
+        - materialId
+        - quantity
+        - txDatetime
+        - material
+
+    DashboardStats:
+      type: object
+      properties:
+        totalMaterials:
+          type: integer
+        totalProducts:
+          type: integer
+        totalLocations:
+          type: integer
+        lowStockItems:
+          type: integer
+        recentTransactions:
+          type: integer
+        totalStockValue:
+          type: number
+      required:
+        - totalMaterials
+        - totalProducts
+        - totalLocations
+        - lowStockItems
+        - recentTransactions
+        - totalStockValue
