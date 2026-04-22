@@ -1,0 +1,332 @@
+You are a senior software architect and full-stack Python developer.
+Design and implement a Manufacturing Planning + Inventory + Location Transfer + User Management System. The base requirements are derived from the following specification
+
+GOAL:
+
+Build a complete system that supports these core workflows:
+
+Manufacturing Plan (BOM-based):
+I enter a Product Code and a Quantity to manufacture, and the system outputs the required raw materials with each material’s Code, Name, and Required Quantity.
+Warehouse Inventory:
+I can add/import materials into a main warehouse by entering Material Code, Material Name, Quantity, and optional Unit.
+Stock Transfer Between Locations:
+I can transfer a material from one location to another. I type/select the material by code or name, the system auto-fills its details, I enter transfer quantity and choose destination location. The quantity is deducted from the source location and added to the destination location.
+Inventory Counting / Stock Audit Page:
+Create a dedicated Inventory Count / Stock Audit page where users can:
+view current stock by location
+perform physical stock counting
+compare system quantity vs actual counted quantity
+see variance/difference
+save stock adjustments
+automatically generate an adjustment transaction in the audit log with tx_type = "ADJUST"
+add notes for each adjustment
+This page should be practical, clear, and suitable for real warehouse operations.
+Admin / Manager Page:
+Create a separate Admin Dashboard page for the system manager/administrator where they can:
+add new users
+edit users
+activate/deactivate users
+assign roles and permissions
+control which pages/features each user can access
+SYSTEM REQUIREMENTS
+A) Data Model (Database)
+
+Use SQLite for now, with architecture ready for PostgreSQL later if needed.
+
+Create these tables:
+
+1) products
+id (PK)
+product_code (unique)
+product_name (optional)
+2) materials
+id (PK)
+material_code (unique)
+material_name
+unit (optional, e.g. pcs, kg, meter)
+3) bom_items
+id (PK)
+product_id (FK -> products.id)
+material_id (FK -> materials.id)
+qty_per_unit
+4) locations
+id (PK)
+location_name (unique)
+5) inventory_balances
+id (PK)
+material_id (FK -> materials.id)
+location_id (FK -> locations.id)
+quantity
+Constraint: one row per (material_id, location_id)
+6) inventory_transactions
+id (PK)
+tx_type (IN, OUT, TRANSFER, ADJUST)
+material_id
+from_location_id (nullable)
+to_location_id (nullable)
+quantity
+tx_datetime
+reference (optional)
+user_note (optional)
+7) users
+id (PK)
+username (unique)
+full_name
+password_hash
+role
+is_active
+created_at
+8) roles / permissions
+
+Design a flexible permission system, either:
+
+a simple role-based system (admin, manager, storekeeper, viewer)
+
+or preferably:
+
+roles table
+permissions table
+user_roles table
+role_permissions table
+
+Permissions examples:
+
+view_manufacturing_plan
+add_inventory
+transfer_stock
+adjust_inventory
+view_reports
+manage_users
+manage_permissions
+view_all_locations
+B) Workflow 1: Manufacturing Plan (BOM Explosion)
+
+User inputs:
+
+product_code
+target_quantity_to_produce
+
+System outputs:
+
+material_code
+material_name
+required_qty = qty_per_unit × target_quantity_to_produce
+
+Also show:
+
+total number of materials
+optional availability check from selected location
+available_qty
+shortage_qty = max(0, required_qty - available_qty)
+
+Validation:
+
+product_code must exist
+target_quantity_to_produce > 0
+BOM must exist for selected product
+support decimal quantities where needed
+C) Workflow 2: Warehouse Inventory Input (Stock In)
+
+User inputs:
+
+material_code
+material_name
+quantity
+location (default: Main Warehouse)
+
+Behavior:
+
+If material_code exists, auto-fill material_name
+Prevent conflicting name changes unless confirmed
+If material does not exist, create it
+Add quantity to inventory_balances
+Create transaction record with tx_type = "IN"
+
+Validation:
+
+quantity > 0
+location must exist or be created
+no invalid negative quantities
+D) Workflow 3: Transfer Materials Between Locations
+
+User inputs:
+
+material_code or material_name search
+transfer_quantity
+from_location
+to_location
+
+Behavior:
+
+autocomplete for material code/name
+auto-fill selected material details
+check available stock in source location
+if enough stock:
+subtract from source
+add to destination
+write TRANSFER transaction
+if not enough:
+show validation error
+
+Validation:
+
+transfer_quantity > 0
+from_location != to_location
+material must exist
+cannot transfer more than available
+E) Workflow 4: Inventory Count / Stock Audit
+
+User inputs:
+
+location
+material search/filter
+actual counted quantity
+note/reason
+
+Behavior:
+
+display system quantity
+user enters actual counted quantity
+calculate variance:
+variance = actual_counted_qty - system_qty
+if variance exists:
+allow saving adjustment
+update inventory balance
+create ADJUST transaction in audit log
+support filtering by location and material
+support counting all materials in one location in a grid/table form
+
+Validation:
+
+counted quantity cannot be empty
+support decimal values
+save user and timestamp for each adjustment
+F) Workflow 5: Admin / User Management
+
+Create a separate page for administrators only.
+
+Features:
+
+create new user
+edit user profile
+reset/change password
+activate/deactivate user
+assign role
+assign detailed permissions
+restrict page access depending on role/permissions
+hide unauthorized pages/buttons from users without permission
+
+Suggested roles:
+
+Admin: full access
+Manager: can manage stock, reports, and manufacturing plans
+Storekeeper: can stock in, transfer, and inventory count
+Viewer: read-only access
+
+Security:
+
+store passwords as hashed values, never plain text
+implement login page
+session or state-based authentication for desktop app
+permission checks at UI level and service level
+G) UI / Application Type
+
+Implement as a local Windows desktop app using Python + CustomTkinter.
+
+Provide these screens/tabs:
+
+Login Page
+Dashboard / Home
+Manufacturing Plan
+Inventory / Stock In / Materials Master
+Transfer Between Locations
+Inventory Count / Stock Audit
+Reports
+Admin / User Management
+H) UI / UX Design Requirements
+
+The system must have a modern, elegant, and visually attractive design.
+
+Design expectations:
+
+use CustomTkinter with a clean professional layout
+beautiful color palette with consistent theme
+modern buttons, cards, tables, side menu, and headers
+use icons where suitable
+add simple visual decorations/illustrations/shapes to improve the look
+provide a polished ERP-style interface
+make the layout responsive and well-organized
+use visually clear sections and soft spacing
+ensure forms and tables look neat and easy to use
+use success, warning, and error colors consistently
+create a professional admin panel design different from normal user pages
+use charts/cards on dashboard for a better visual experience
+
+Suggested UI style:
+
+left sidebar navigation
+top header bar with page title and current user
+dashboard summary cards:
+total materials
+total products
+total locations
+low stock items
+recent transfers
+soft modern colors such as:
+dark blue / navy
+teal / cyan accents
+white / light gray backgrounds
+green/orange/red for stock status
+rounded corners and modern table styling
+I) Reports
+
+Include reports such as:
+
+inventory by location
+material balances
+transaction history
+transfer history
+stock adjustment history
+shortage report for manufacturing plan
+low stock report
+
+Filters:
+
+date range
+material
+location
+transaction type
+
+Export:
+
+Excel
+CSV
+J) Non-Functional Requirements
+strong data integrity using database transactions
+commit/rollback on all stock-changing operations
+full auditability for every inventory movement
+clean architecture with separation of concerns:
+database/models
+repositories
+services
+ui/pages
+utils
+scalable and maintainable code
+reusable components
+proper error handling
+validation for all forms
+support Arabic-friendly labels if needed later
+K) Deliverables
+
+Provide:
+
+Full project architecture
+SQLite schema creation code
+Python classes/services for each workflow
+CustomTkinter UI pages
+Login + user permissions system
+Admin page for managing users and permissions
+Inventory count page
+Beautiful modern styling across the whole application
+Example seed data
+Clear explanation of how each part works
